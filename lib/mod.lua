@@ -22,10 +22,10 @@
    end
 
    local function add_nb_harvest_params()
-      params:add_group("nb_harvest_group", "HØST", 12)
+      params:add_group("nb_harvest_group", "nb_harvest", 12)
       params:hide("nb_harvest_group")
    
-      params:add_separator("nb_synth", "løv")
+      params:add_separator("nb_synth", "høstløv")
       
       params:add{
          type        = "control",
