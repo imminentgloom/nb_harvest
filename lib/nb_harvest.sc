@@ -77,7 +77,7 @@ NB_nb_harvest {
 
                lpg = LPF.ar(max, env.linexp(0, 1, 200, 20000), env * vel * amp);
 
-               snd = Pan2.ar(lpg).tanh * 0.5;
+               snd = Pan2.ar(lpg).tanh * 0.3;
 
                Out.ar(\out.ir(0), snd);
                Out.ar(\sendABus.ir(0), \sendA.kr(0) * snd);
