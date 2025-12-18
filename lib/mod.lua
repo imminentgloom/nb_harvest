@@ -1,6 +1,6 @@
-   -- høstløv
+   -- Høstløv
 
-   -- nb_harvest v1.0 - imminent gloom
+   -- nb_harvest v1.1 - @imminent_gloom
    -- nb boilerplate v0.1 @sonoCircuit
 
    local mu = require "musicutil"
@@ -22,108 +22,129 @@
    end
 
    local function add_nb_harvest_params()
-      params:add_group("nb_harvest_group", "nb_harvest", 12)
+      params:add_group("nb_harvest_group", "HØSTLØV", 11)
       params:hide("nb_harvest_group")
-   
-      params:add_separator("nb_synth", "høstløv")
       
       params:add{
-         type        = "control",
-         id          = "nb_synth_amp",
-         name        = "volum",
-         controlspec = controlspec.new(0, 1, "lin", 0.01, 0.8),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_synth_amp",
+         name         = "Volum",
+         controlspec  = controlspec.new(0, 1, "lin", 0.01, 0.8),
+         action       = function(x)
             set_param("amp", x)
          end
       }
       
       params:add{
-         type        = "control",
-         id          = "nb_timbre",
-         name        = "klangfarge",
-         controlspec = controlspec.new(0, 1, "lin", 0.01, 0.2),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_timbre",
+         name         = "Klangfarge",
+         controlspec  = controlspec.new(0, 1, "lin", 0.01, 0.2),
+         action       = function(x)
             set_param("timbre", x)
          end
       }
       
       params:add{
-         type        = "control",
-         id          = "nb_noise",
-         name        = "støy",
-         controlspec = controlspec.new(0, 1, "lin", 0.01, 0.3),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_noise",
+         name         = "Støy",
+         controlspec  = controlspec.new(0, 1, "lin", 0.01, 0.3),
+         action       = function(x)
             set_param("noise", x)
          end
       }
       
       params:add{
-         type        = "control",
-         id          = "nb_bias",
-         name        = "terskel",
-         controlspec = controlspec.new(0, 1, "lin", 0.01, 0.6),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_bias",
+         name         = "Terskel",
+         controlspec  = controlspec.new(0, 1, "lin", 0.01, 0.6),
+         action       = function(x)
             set_param("bias", x)
          end
       }
       
       params:add{
-         type        = "control",
-         id          = "nb_shape",
-         name        = "form",
-         controlspec = controlspec.new(0, 1, "lin", 0.01, 0.1),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_shape",
+         name         = "Kontur",
+         controlspec  = controlspec.new(0, 1, "lin", 0.01, 0.1),
+         action       = function(x)
             set_param("shape", x)
          end
       }
       
       params:add{
-         type        = "option",
-         id          = "nb_loop",
-         name        = "repetisjon",
-         options     = {"nei", "ja"},
-         default     = 1,
-         action      = function(x)
+         type         = "option",
+         id           = "nb_loop",
+         name         = "Repeter?",
+         options      = {"Nei", "Ja"},
+         default      = 1,
+         action       = function(x)
             set_param("loop", x - 1)
          end
       }
       
       params:add{
-         type        = "control",
-         id          = "nb_max_attack",
-         name        = "vekst",
-         controlspec = controlspec.new(0.001, 10, "exp", 0.01, 1, "sek"),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_max_attack",
+         name         = "Vekst",
+         controlspec  = controlspec.new(0.001, 10, "exp", 0.01, 1, "s"),
+         action       = function(x)
             set_param("max_attack", x)
          end
       }
       
       params:add{
-         type        = "control",
-         id          = "nb_max_release",
-         name        = "forfall",
-         controlspec = controlspec.new(0.001, 10, "exp", 0.01, 3, "sek"),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_max_release",
+         name         = "Forfall",
+         controlspec  = controlspec.new(0.001, 10, "exp", 0.01, 3, "s"),
+         action       = function(x)
             set_param("max_release", x)
          end
       }
       
       params:add{
-         type        = "control",
-         id          = "nb_scale",
-         name        = "størrelse",
-         controlspec = controlspec.new(0.01, 1, "lin", 0.01, 1),
-         action      = function(x)
+         type         = "control",
+         id           = "nb_scale",
+         name         = "Skala",
+         controlspec  = controlspec.new(0.01, 1, "lin", 0.01, 1),
+         formatter    = function(x)
+            return math.floor(x:get() * 100) .. " %"
+         end,
+         action       = function(x)
             set_param("scale", x)
          end
       }
       
       -- if you want to use the fx mod environment, keep these.
-      params:add_control("nb_harvest_send_a", "send a", controlspec.new(0, 1, "lin", 0, 0), function(param) return round_form(param:get() * 100, 1, "%") end)
-      params:set_action("nb_harvest_send_a", function(val) set_param("sendA", val) end)
-      
-      params:add_control("nb_harvest_send_b", "send b", controlspec.new(0, 1, "lin", 0, 0), function(param) return round_form(param:get() * 100, 1, "%") end)
-      params:set_action("nb_harvest_send_b", function(val) set_param("sendB", val) end)
+      params:add{
+         type         = "control",
+         id           = "nb_harvest_send_a",
+         name         = "Send A",
+         controlspec  = controlspec.new(0, 1, "lin", 0, 0),
+         formatter    = function(param)
+            return round_form(param:get() * 100, 1, "%")
+         end,
+         action       = function(val)
+            set_param("sendA", val)
+         end
+      }
+
+      params:add{
+         type         = "control",
+         id           = "nb_harvest_send_b",
+         name         = "Send B",
+         controlspec  = controlspec.new(0, 1, "lin", 0, 0),
+         formatter    = function(param)
+            return round_form(param:get() * 100, 1, "%")
+         end,
+         action       = function(val)
+            set_param("sendB", val)
+         end
+      }
    end
 
    function add_nb_harvest_player()
