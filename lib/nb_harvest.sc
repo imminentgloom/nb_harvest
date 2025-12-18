@@ -1,6 +1,6 @@
 // høstløv
 
-// nb_harvest v1.0 - imminent gloom
+// nb_harvest v1.1 - @imminent_gloom
 // nb boilerplate v0.1 @sonoCircuit
 
 NB_nb_harvest {
@@ -35,9 +35,8 @@ NB_nb_harvest {
             synthVoices = Array.fill(numVoices, { Group.new(synthGroup) }); // each voice will have it's own node
 
             SynthDef(\nb_harvest, {
-               var amp, freq, noise, timbre, pulsewidth, sine, saw, square, waveform, bias, threshold, max, vel, gate, loop, shape, scale, max_attack, max_release, attack, release, curve, asr, ararar, env, lpg, snd;
+               var amp, freq, noise, timbre, pulsewidth, sine, saw, square, waveform, bias, threshold, min, vel, gate, loop, shape, scale, max_attack, max_release, attack, release, curve, asr, ararar, env, lpg, snd;
 
-               //synth
                amp = \amp.kr(0.8, 0.1);
                freq = \freq.kr(100, 0.1);
                noise = \noise.kr(0.0, 0.1);
@@ -46,38 +45,38 @@ NB_nb_harvest {
                freq = WhiteNoise.ar(noise) * freq + freq;
                freq = freq.clip(0, SampleRate.ir * 0.5);
 
-               pulsewidth = LinSelectX.kr(timbre * 2, [0, 0.5, 1]);
+               pulsewidth = LinSelectX.kr(timbre * 2, [0.001, 0.5, 1]);
                
-               sine = SinOsc.ar(freq);
-               saw = VarSaw.ar(freq, 0, pulsewidth, 0.61);
+               sine   = SinOsc.ar(freq);
+               saw    = VarSaw.ar(freq, 0, pulsewidth, 0.61);
                square = Pulse.ar(freq, pulsewidth, 0.667);
 
                waveform = SelectX.ar(timbre * 2, [saw, sine, square]);
-               waveform = SelectX.ar(noise * 2, [waveform, waveform * PinkNoise.ar(noise * 3.5, 1), PinkNoise.ar(3.5)]);
+               waveform = SelectX.ar( noise * 2, [waveform, waveform * PinkNoise.ar(noise * 3.5, 1), PinkNoise.ar(3.5)]);
                waveform = waveform.clip(-1, 1);
                
                threshold = -1 * (\bias.kr(1.0, 0.1) * 2 - 1);
-               max = LeakDC.ar((waveform > threshold * waveform) + (waveform <= threshold * threshold));
+               min = LeakDC.ar((waveform > threshold * waveform) + (waveform <= threshold * threshold));
 
-               vel = \vel.kr(1.0);
-               gate = \gate.kr(1.0);
-               loop = \loop.kr(0);
-               shape = \shape.kr(0.1, 0.1);
+               vel =    \vel.kr(1.0);
+               gate =    \gate.kr(1.0);
+               loop =     \loop.kr(0);
+               shape =     \shape.kr(0.1, 0.1);
                max_attack = \max_attack.kr(1, 0.1);
                max_release = \max_release.kr(3, 0.1);
-               scale = \scale.kr(1, 0.1);
+               scale =        \scale.kr(1, 0.1);
 
-               attack = (LinSelectX.kr(shape * 3, [0.01, 0.01, max_attack, max_attack]) * scale).clip(0.01, max_attack);
+               attack  = (LinSelectX.kr(shape * 3, [0.01, 0.01, max_attack, max_attack]) * scale).clip(0.01, max_attack);
                release = (LinSelectX.kr(shape * 3, [0.01, max_release, max_release, 0.01]) * scale).clip(0.01, max_release);
-               curve = LinSelectX.kr(shape * 3, [-2, -0.5, 0, 0]);
+               curve   =  LinSelectX.kr(shape * 3, [-2, -0.5, 0, 0]);
 
-               asr = EnvGen.kr(Env.asr(attack, 1, release, curve: curve), gate, doneAction: 2);
+               asr    = EnvGen.kr(Env.asr(attack, 1, release, curve: curve), gate, doneAction: 2);
                ararar = EnvGen.kr(Env.new([0, 1, 0, 1, 0], [attack, release, attack, release], releaseNode: 3, loopNode: 1, curve: curve), gate, doneAction: 2);
-               env = LinSelectX.kr(loop.lag(attack * scale), [asr, ararar]);
+               env    = LinSelectX.kr(loop.lag((release * scale).clip(0.01, release)), [asr, ararar]);
 
-               lpg = LPF.ar(max, env.linexp(0, 1, 200, 20000), env * vel * amp);
+               lpg = LPF.ar(min, env.linexp(0, 1, 200, 20000), env * vel * amp);
 
-               snd = Pan2.ar(lpg).tanh * 0.3;
+               snd = Pan2.ar(lpg) * 0.5;
 
                Out.ar(\out.ir(0), snd);
                Out.ar(\sendABus.ir(0), \sendA.kr(0) * snd);
